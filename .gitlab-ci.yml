@@ -31,6 +31,6 @@ production:
     - apt-get install -y ruby-dev
     - gem install dpl
     - dpl --provider=heroku --app=dispatch-planner --api-key=852df062-98ce-40a7-979e-50103f49f115
-    - python manage.py runserver
+    - gunicorn core.wsgi
   only:
     - master
