@@ -16,7 +16,7 @@ SECRET_KEY = 'l_1gv7myh3#x=7l$bd(ac1hgf687yz4o1&65z=mzd28*+tdo93'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['dispatch-planner.herokuapp.com']
 
 AUTH_USER_MODEL = 'authentication.User'
 
@@ -167,5 +167,5 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
-    "http://127.0.0.1:3000"
+    "http://127.0.0.1:3000",
 ]
