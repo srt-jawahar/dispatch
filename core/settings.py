@@ -2,10 +2,10 @@ from pathlib import Path
 from datetime import timedelta
 
 import os
-import django_heroku
+# import django_heroku
 
 # Activate Django-Heroku.
-django_heroku.settings(locals())
+# django_heroku.settings(locals())
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +20,7 @@ SECRET_KEY = 'l_1gv7myh3#x=7l$bd(ac1hgf687yz4o1&65z=mzd28*+tdo93'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['dispatch-planner.herokuapp.com']
+ALLOWED_HOSTS = ['dispatch-planner.herokuapp.com', '127.0.0.1', 'localhost']
 
 AUTH_USER_MODEL = 'authentication.User'
 
