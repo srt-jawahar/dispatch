@@ -2,7 +2,8 @@ from pathlib import Path
 from datetime import timedelta
 
 import os
-# import django_heroku
+from dotenv import load_dotenv
+load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -11,6 +12,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 DATABASE_URL = os.getenv('DATABASE_URL')
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'l_1gv7myh3#x=7l$bd(ac1hgf687yz4o1&65z=mzd28*+tdo93'
@@ -36,6 +38,8 @@ INSTALLED_APPS = [
     'authentication',
     'drf_yasg',
     'corsheaders',
+    'django_seed',
+    'app'
 ]
 
 SWAGGER_SETTINGS = {
@@ -45,11 +49,19 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization',
             'in': 'header'
         }
-    }
+    },
+    'USE_SESSION_AUTH': False,
+    'APIS_SORTER': 'alpha',
+    'DOC_EXPANSION': None,
+    'OPERATIONS_SORTER': 'alpha'
 }
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=5),
+    # 'AUTH_HEADER_TYPES': ('Bearer',),
+    # 'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
+    # 'USER_ID_FIELD': 'id',
+    # 'USER_ID_CLAIM': 'user_id',
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -179,6 +191,3 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
-
-# Activate Django-Heroku.
-# django_heroku.settings(locals())

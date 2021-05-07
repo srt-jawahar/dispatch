@@ -24,7 +24,6 @@ import os
 # Create your views here.
 
 class CustomRedirect(HttpResponsePermanentRedirect):
-
     allowed_schemes = [os.environ.get('APP_SCHEME'), 'http', 'https']
 
 
@@ -165,4 +164,3 @@ class LogoutAPIView(generics.GenericAPIView):
         serializer.save()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
-

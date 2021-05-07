@@ -14,14 +14,29 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'username', 'password']
+        fields = ['email', 'username', 'password', 'role']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
         username = attrs.get('username', '')
+        role = attrs.get('role', '')
+
+        roles = (
+            ("ROLE_ADMIN", "Admin"),
+            ("ROLE_MANAGER", "Freight Order Manager"),
+            ("ROLE_SPECIALIST", "Freight Order Specialist"),
+            ("ROLE_PLANNING_SPECIALIST", "Freight Planning Specialist"),
+            ("ROLE_PLANNING_MANAGER", "Freight Planning Manager"),
+            ("ROLE_TRACKER", "Tracker"),
+            ("ROLE_FINAL_MANAGER", "Manager"),
+        )
 
         if not username.isalnum():
             raise serializers.ValidationError('Username should not contain alpha numeric characters')
+
+        if role not in roles:
+            raise serializers.ValidationError('Role is not valid')
+
         return attrs
 
     def create(self, validated_data):
@@ -53,7 +68,7 @@ class LoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['email', 'password', 'username', 'tokens']
+        fields = ['email', 'password', 'username', 'tokens', 'role']
 
     def validate(self, attrs):
         email = attrs.get('email', '')
@@ -120,11 +135,12 @@ class SetNewPasswordSerializer(serializers.Serializer):
 class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
-    default_error_message = {
-        'bad_token': 'Token is expired or invalid'
+    default_error_messages = {
+        'bad_token': ('Token is expired or invalid')
     }
 
     def validate(self, attrs):
+
         self.token = attrs['refresh']
         return attrs
 

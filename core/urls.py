@@ -13,10 +13,8 @@ schema_view = get_schema_view(
    openapi.Info(
       title="Dispatch Planner API",
       default_version='v1',
-      description="Test description",
-      terms_of_service="https://www.test.com/policies/terms/",
-      contact=openapi.Contact(email="contact@focusrtech.local"),
-      license=openapi.License(name="BSD License Test"),
+      description="Plans delivery simpler than ever",
+      contact=openapi.Contact(email="foucsrdeployment@gmail.com"),
    ),
    public=True,
    permission_classes=(permissions.AllowAny,),

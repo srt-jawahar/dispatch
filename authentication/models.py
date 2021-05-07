@@ -30,7 +30,28 @@ class UserManager(BaseUserManager):
         return user
 
 
+class Role(models.Model):
+    name = models.CharField(max_length=50, unique=True)
+    desc = models.CharField(max_length=255)
+
+    def __str__(self):
+        return self.name
+
+
 class User(AbstractBaseUser, PermissionsMixin):
+    """
+    Role is given as choice as a temporary solution. in future we will be moving it a separate table
+    """
+    roles = (
+        ("ROLE_ADMIN", "Admin"),
+        ("ROLE_MANAGER", "Freight Order Manager"),
+        ("ROLE_SPECIALIST", "Freight Order Specialist"),
+        ("ROLE_PLANNING_SPECIALIST", "Freight Planning Specialist"),
+        ("ROLE_PLANNING_MANAGER", "Freight Planning Manager"),
+        ("ROLE_TRACKER", "Tracker"),
+        ("ROLE_FINAL_MANAGER", "Manager"),
+    )
+
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=50, unique=True, db_index=True)
     is_email_verified = models.BooleanField(default=False)
@@ -38,9 +59,10 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    role = models.CharField(choices=roles, max_length=255, default='ROLE_MANAGER')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
+    REQUIRED_FIELDS = ['username', 'role']
 
     objects = UserManager()
 
@@ -51,5 +73,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         refresh_token = RefreshToken.for_user(self)
         return {
             'refresh_token': str(refresh_token),
-            'access_token' : str(refresh_token.access_token)
+            'access_token': str(refresh_token.access_token)
         }
