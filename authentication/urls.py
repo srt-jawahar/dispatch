@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import RegistrationView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetViaEmail, SetNewPasswordAPIView, LogoutAPIView
+from .views import RegistrationView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetViaEmail, SetNewPasswordAPIView, LogoutAPIView, GetAllUsersView
 
 urlpatterns = [
     path('register/', RegistrationView.as_view(), name='register'),
@@ -9,4 +9,5 @@ urlpatterns = [
     path('password-reset/<uidb64>/<token>/', PasswordTokenCheckAPI.as_view(), name='password-reset-confirm'),
     path('password-reset-complete', SetNewPasswordAPIView.as_view(), name='password-reset-complete'),
     path('logout/', LogoutAPIView.as_view(), name="logout"),
+    path('gellAllUsers/', GetAllUsersView.as_view(), name="logout"),
 ]
