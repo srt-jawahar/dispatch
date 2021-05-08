@@ -33,9 +33,9 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         if not username.isalnum():
             raise serializers.ValidationError('Username should not contain alpha numeric characters')
-
-        if role not in roles:
-            raise serializers.ValidationError('Role is not valid')
+        # TODO
+        # if any(role not in code for code in roles):
+        #     raise serializers.ValidationError('Role is not valid')
 
         return attrs
 
