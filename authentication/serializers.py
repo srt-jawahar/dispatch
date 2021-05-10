@@ -2,6 +2,7 @@ from django.contrib import auth
 from django.utils.encoding import force_str
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.http import urlsafe_base64_decode
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
@@ -21,21 +22,8 @@ class RegisterSerializer(serializers.ModelSerializer):
         username = attrs.get('username', '')
         role = attrs.get('role', '')
 
-        roles = (
-            ("ROLE_ADMIN", "Admin"),
-            ("ROLE_MANAGER", "Freight Order Manager"),
-            ("ROLE_SPECIALIST", "Freight Order Specialist"),
-            ("ROLE_PLANNING_SPECIALIST", "Freight Planning Specialist"),
-            ("ROLE_PLANNING_MANAGER", "Freight Planning Manager"),
-            ("ROLE_TRACKER", "Tracker"),
-            ("ROLE_FINAL_MANAGER", "Manager"),
-        )
-
         if not username.isalnum():
             raise serializers.ValidationError('Username should not contain alpha numeric characters')
-        # TODO
-        # if any(role not in code for code in roles):
-        #     raise serializers.ValidationError('Role is not valid')
 
         return attrs
 
@@ -136,7 +124,7 @@ class LogoutSerializer(serializers.Serializer):
     refresh = serializers.CharField()
 
     default_error_messages = {
-        'bad_token': ('Token is expired or invalid')
+        'bad_token': _('Token is expired or invalid')
     }
 
     def validate(self, attrs):
@@ -157,3 +145,64 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['id', 'username', 'email', 'is_active', 'is_superuser', 'last_login', 'created_at', 'role']
+
+
+class ChangePasswordSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True)
+    password2 = serializers.CharField(write_only=True, required=True)
+    old_password = serializers.CharField(write_only=True, required=True)
+
+    class Meta:
+        model = User
+        fields = ('old_password', 'password', 'password2')
+
+    def validate(self, attrs):
+        if attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Password fields didn't match."})
+
+        return attrs
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError({"old_password": "Old password is not correct"})
+        return value
+
+    def update(self, instance, validated_data):
+        user = self.context['request'].user
+
+        if user.pk != instance.pk:
+            raise serializers.ValidationError({"authorize": "You dont have permission for this user."})
+
+        instance.set_password(validated_data['password'])
+        instance.save()
+
+        return instance
+
+
+class UpdateUserSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(required=True)
+
+    class Meta:
+        model = User
+        fields = ('username', 'email')
+
+    def validate_email(self, value):
+        user = self.context['request'].user
+        if User.objects.exclude(pk=user.pk).filter(email=value).exists():
+            raise serializers.ValidationError({"email": "This email is already in use."})
+        return value
+
+    def validate_username(self, value):
+        user = self.context['request'].user
+        if User.objects.exclude(pk=user.pk).filter(username=value).exists():
+            raise serializers.ValidationError({"username": "This username is already in use."})
+        return value
+
+    def update(self, instance, validated_data):
+        instance.email = validated_data['email']
+        instance.username = validated_data['username']
+
+        instance.save()
+
+        return instance

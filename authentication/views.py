@@ -12,7 +12,8 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer, \
-    ResetPasswordViaEmailSerializer, SetNewPasswordSerializer, LogoutSerializer, UserSerializer
+    ResetPasswordViaEmailSerializer, SetNewPasswordSerializer, LogoutSerializer, UserSerializer, \
+    ChangePasswordSerializer, UpdateUserSerializer
 from .models import User
 from .utils import Utils
 from .renderers import UserRenderer
@@ -168,7 +169,19 @@ class LogoutAPIView(generics.GenericAPIView):
 
 class GetAllUsersView(generics.ListAPIView):
     serializer_class = UserSerializer
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
         return User.objects.all()
+
+
+class ChangePasswordView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = ChangePasswordSerializer
+
+
+class UpdateProfileView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UpdateUserSerializer
