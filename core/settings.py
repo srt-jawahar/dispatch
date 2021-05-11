@@ -3,6 +3,7 @@ from datetime import timedelta
 
 import os
 from dotenv import load_dotenv
+
 load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -12,7 +13,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.1/howto/deployment/checklist/
 
 DATABASE_URL = os.getenv('DATABASE_URL')
-
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'l_1gv7myh3#x=7l$bd(ac1hgf687yz4o1&65z=mzd28*+tdo93'
@@ -61,7 +61,7 @@ SIMPLE_JWT = {
     # 'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     # 'USER_ID_FIELD': 'id',
     # 'USER_ID_CLAIM': 'user_id',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=1),
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 
@@ -191,3 +191,6 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'

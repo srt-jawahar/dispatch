@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import RegistrationView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetViaEmail, SetNewPasswordAPIView, LogoutAPIView, GetAllUsersView, ChangePasswordView, UpdateProfileView
+from .views import RegistrationView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetViaEmail,\
+    SetNewPasswordAPIView, LogoutAPIView, GetAllUsersView, ChangePasswordView, UpdateProfileView, \
+    UserAvatarUpload
 
 urlpatterns = [
     path('register/', RegistrationView.as_view(), name='register'),
@@ -12,4 +14,5 @@ urlpatterns = [
     path('getAllUsers/', GetAllUsersView.as_view(), name="logout"),
     path('change_password/<int:pk>/', ChangePasswordView.as_view(), name='auth_change_password'),
     path('update_profile/<int:pk>/', UpdateProfileView.as_view(), name='auth_update_profile'),
+    path('upload_profile_photo/<int:pk>/', UserAvatarUpload.as_view(), name='upload-avatar')
 ]

@@ -6,14 +6,14 @@ from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse
 from django.http import HttpResponsePermanentRedirect
 
-from rest_framework import generics, status, views, permissions
+from rest_framework import generics, status, views, permissions, parsers
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer, \
     ResetPasswordViaEmailSerializer, SetNewPasswordSerializer, LogoutSerializer, UserSerializer, \
-    ChangePasswordSerializer, UpdateUserSerializer
+    ChangePasswordSerializer, UpdateUserSerializer, UploadAvatarSerializer
 from .models import User
 from .utils import Utils
 from .renderers import UserRenderer
@@ -185,3 +185,18 @@ class UpdateProfileView(generics.UpdateAPIView):
     queryset = User.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UpdateUserSerializer
+
+
+class UserAvatarUpload(views.APIView):
+    queryset = User.objects.all()
+    # permission_classes = (permissions.IsAuthenticated, )
+    parser_classes = [parsers.MultiPartParser, parsers.FormParser]
+
+    # def post(self, request, format=None):
+    #     print(request.data)
+    #     serializer = UploadAvatarSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({'success': True, 'message': 'Uploaded successfully'}, status=status.HTTP_200_OK)
+    #     else:
+    #         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 
+
 from rest_framework_simplejwt.tokens import RefreshToken
 
 
@@ -54,6 +55,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=50, unique=True, db_index=True)
+    avatar = models.ImageField(null=True, blank=True, upload_to='media/%y/%m/%d/')
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
