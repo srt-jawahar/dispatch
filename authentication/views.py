@@ -189,7 +189,7 @@ class UpdateProfileView(generics.UpdateAPIView):
 
 class UserAvatarUpload(views.APIView):
     parser_classes = (parsers.FormParser, parsers.MultiPartParser)
-    permission_classes = (permissions.IsAuthenticated, )
+    permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request, format=None):
         serializer = UserAvatarSerializer(data=request.data, instance=request.user)
@@ -198,3 +198,10 @@ class UserAvatarUpload(views.APIView):
             return Response(serializer.data, status=status.HTTP_200_OK)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class GetAUserView(generics.RetrieveAPIView):
+    permission_classes = (permissions.IsAuthenticated,)
+    serializer_class = UserSerializer
+    queryset = User.objects.all()
+
