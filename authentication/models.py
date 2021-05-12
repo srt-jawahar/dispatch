@@ -1,8 +1,11 @@
 from django.db import models
+from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
-
+from django.utils.translation import gettext_lazy as _
 
 from rest_framework_simplejwt.tokens import RefreshToken
+
+import os
 
 
 class UserManager(BaseUserManager):
@@ -39,6 +42,13 @@ class Role(models.Model):
         return self.name
 
 
+def upload_to(instance, filename):
+    now = timezone.now()
+    base, extension = os.path.splitext(filename.lower())
+    milliseconds = now.microsecond // 1000
+    return f"users/{instance.pk}/{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
+
+
 class User(AbstractBaseUser, PermissionsMixin):
     """
     Role is given as choice as a temporary solution. in future we will be moving it a separate table
@@ -55,7 +65,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
     username = models.CharField(max_length=255, unique=True, db_index=True)
     email = models.EmailField(max_length=50, unique=True, db_index=True)
-    avatar = models.ImageField(null=True, blank=True, upload_to='media/%y/%m/%d/')
+    avatar = models.ImageField(_("Avatar"), upload_to=upload_to, blank=True, null=True)
     is_email_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)

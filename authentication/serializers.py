@@ -208,13 +208,14 @@ class UpdateUserSerializer(serializers.ModelSerializer):
         return instance
 
 
-class UploadAvatarSerializer(serializers.ModelSerializer):
+class UserAvatarSerializer(serializers.ModelSerializer):
     avatar = serializers.ImageField(required=True)
 
     class Meta:
         model = User
-        fields = ('avatar',)
+        fields = ("avatar",)
 
-    def update(self, instance, validated_data):
-        instance.save()
-        return instance
+    def save(self, *args, **kwargs):
+        if self.instance.avatar:
+            self.instance.avatar.delete()
+        return super().save(*args, **kwargs)

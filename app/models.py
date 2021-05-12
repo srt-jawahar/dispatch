@@ -1,5 +1,6 @@
 from django.db import models
 
+
 # Comment added for testing
 # Create your models here.
 class FreightOrder(models.Model):
