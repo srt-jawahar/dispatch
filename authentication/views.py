@@ -200,8 +200,8 @@ class UserAvatarUpload(views.APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# Changes
 class GetAUserView(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UserSerializer
     queryset = User.objects.all()
-
