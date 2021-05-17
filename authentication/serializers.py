@@ -44,6 +44,7 @@ class LoginSerializer(serializers.ModelSerializer):
     username = serializers.CharField(max_length=255, read_only=True)
     tokens = serializers.SerializerMethodField()
     password = serializers.CharField(max_length=50, min_length=8, write_only=True)
+    role = serializers.CharField(read_only=True)
 
     def get_tokens(self, obj):
         user = User.objects.get(email=obj.get('email', ''))
@@ -77,6 +78,7 @@ class LoginSerializer(serializers.ModelSerializer):
             'username': user.username,
             'avatar': user.avatar,
             'id': user.id,
+            'role': user.role,
             'tokens': user.tokens()
         }
 
@@ -186,7 +188,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'is_active', 'role')
+        fields = ('username', 'email', 'role')
 
     def validate_email(self, value):
         user = self.context['request'].user
@@ -203,9 +205,8 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.email = validated_data['email']
         instance.username = validated_data['username']
-
+        instance.role = validated_data['role']
         instance.save()
-
         return instance
 
 
