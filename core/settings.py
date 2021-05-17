@@ -40,7 +40,8 @@ INSTALLED_APPS = [
     'corsheaders',
     'django_seed',
     'app',
-    'truckmanagement'
+    'truckmanagement',
+    'masterdata'
 ]
 
 SWAGGER_SETTINGS = {
