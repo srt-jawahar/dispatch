@@ -188,7 +188,7 @@ class UpdateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'role')
+        fields = ('username', 'email',)
 
     def validate_email(self, value):
         user = self.context['request'].user
@@ -205,7 +205,6 @@ class UpdateUserSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         instance.email = validated_data['email']
         instance.username = validated_data['username']
-        instance.role = validated_data['role']
         instance.save()
         return instance
 
