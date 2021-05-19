@@ -3,6 +3,7 @@ from .views import PlantFromSAPView, PlantListView
 from .views import CustomerFromSAPView, CustomerListView
 from .views import DeliveryDetailsFromSAPView, DeliveryDetailsListView
 
+
 urlpatterns = [
    # plant urls
    path('updatePlant/<str:PLANT>/', PlantFromSAPView.as_view()),

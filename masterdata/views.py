@@ -5,6 +5,7 @@ from .serializers import PlantSerializer, CustomerSerializer, DeliveryDetailsSer
 from .models import Plants, Customers, DeliveryDetails
 from rest_framework.response import Response
 
+
 # Starting of plant view
 class PlantFromSAPView(generics.GenericAPIView, mixins.ListModelMixin, mixins.CreateModelMixin,
                       mixins.UpdateModelMixin, mixins.DestroyModelMixin):
