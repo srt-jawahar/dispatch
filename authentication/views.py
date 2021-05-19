@@ -13,8 +13,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer, \
     ResetPasswordViaEmailSerializer, SetNewPasswordSerializer, LogoutSerializer, UserSerializer, \
-    ChangePasswordSerializer, UpdateUserSerializer, UserAvatarSerializer
-from .models import User
+    ChangePasswordSerializer, UpdateUserSerializer, UserAvatarSerializer, RoleSerializer, UserRoleSerializer
+from .models import User, Role
 from .utils import Utils
 from .renderers import UserRenderer
 
@@ -200,8 +200,25 @@ class UserAvatarUpload(views.APIView):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Changes
 class GetAUserView(generics.RetrieveAPIView):
     permission_classes = (permissions.IsAuthenticated,)
     serializer_class = UserSerializer
     queryset = User.objects.all()
+
+
+class RoleListView(generics.ListCreateAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class RoleUpdateRetrieveView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Role.objects.all()
+    serializer_class = RoleSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+
+class UserStatusView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserRoleSerializer
+    permission_classes = [permissions.IsAuthenticated]

@@ -7,7 +7,7 @@ from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import AuthenticationFailed
 from rest_framework_simplejwt.tokens import RefreshToken, TokenError
-from .models import User
+from .models import User, Role
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -220,3 +220,15 @@ class UserAvatarSerializer(serializers.ModelSerializer):
         if self.instance.avatar:
             self.instance.avatar.delete()
         return super().save(*args, **kwargs)
+
+
+class RoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Role
+        fields = '__all__'
+
+
+class UserRoleSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ['is_active']
