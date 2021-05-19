@@ -1,5 +1,7 @@
 from django.urls import path
-from .views import PlantFromSAPView, PlantListView, CustomerFromSAPView, CustomerListView
+from .views import PlantFromSAPView, PlantListView
+from .views import CustomerFromSAPView, CustomerListView
+from .views import DeliveryDetailsFromSAPView, DeliveryDetailsListView
 
 urlpatterns = [
    # plant urls
@@ -13,6 +15,13 @@ urlpatterns = [
    path('createCustomer/', CustomerFromSAPView.as_view()),
    path('getAllCustomers/', CustomerListView.as_view()),
    path('getCustomer/<str:CUST_ID>/', CustomerListView.as_view()),
+
+   # delivery details urls
+   path('updateDeliveryDetails/<str:CUST_ID>/', DeliveryDetailsFromSAPView.as_view()),
+   path('createDeliveryDetails/', DeliveryDetailsFromSAPView.as_view()),
+   path('getAllDeliveryDetails/', DeliveryDetailsListView.as_view()),
+   path('getDeliveryDetails/<str:CUST_ID>/', DeliveryDetailsListView.as_view()),
 ]
+
 
 
