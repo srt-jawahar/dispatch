@@ -18,3 +18,9 @@ class DeliveryDetailsSerializer(serializers.ModelSerializer):
     class Meta:
         model = DeliveryDetails
         fields = '__all__'
+
+
+class DeliveryGroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = DeliveryDetails
+        fields = ('DEL_NO', 'REGION', 'TOT_WGT', 'VOLUME')

@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django_seed',
     'app',
     'truckmanagement',
-    'masterdata'
+    'masterdata',
+    'freight_order'
 ]
 
 SWAGGER_SETTINGS = {
@@ -63,7 +64,7 @@ SIMPLE_JWT = {
     # 'AUTH_HEADER_NAME': 'HTTP_AUTHORIZATION',
     # 'USER_ID_FIELD': 'id',
     # 'USER_ID_CLAIM': 'user_id',
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=30),
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=1),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),
 }
 

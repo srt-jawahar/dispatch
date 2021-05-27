@@ -1,6 +1,6 @@
 from django.db import models
 
-
+"""
 class FreightOrder(models.Model):
     DEL_NO = models.CharField(max_length=255, )
     DEL_ITEM = models.CharField(max_length=255, )
@@ -17,4 +17,5 @@ class FreightOrder(models.Model):
     REGION = models.CharField(max_length=255, )
 
     def __str__(self):
-        return self.MATERIAL
+        return self.MATERIAL 
+"""
