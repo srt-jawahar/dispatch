@@ -1,8 +1,9 @@
+from django.db.models import Count, Sum
 from django.shortcuts import render
 from rest_framework import mixins, status, permissions
 from rest_framework import generics
-from .serializers import PlantSerializer, CustomerSerializer, DeliveryDetailsSerializer
-from .models import Plants, Customers, DeliveryDetails
+from .serializers import PlantSerializer, CustomerSerializer, DeliveryDetailsSerializer, DeliveryGroupSerializer
+from .models import Plants, Customers, DeliveryDetails, DeliveryHeaders
 from rest_framework.response import Response
 
 
@@ -87,7 +88,21 @@ class DeliveryDetailsFromSAPView(generics.GenericAPIView, mixins.ListModelMixin,
     lookup_field = 'CUST_ID'
 
     def post(self, request, CUST_ID=None):
-        serializer = self.get_serializer(data=request.data, many=True)
+        reqdata = request.data
+        serializer = self.get_serializer(data=reqdata, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        for deli in reqdata:
+            del_no = deli.get('DEL_NO', None)
+            deliver_header = DeliveryHeaders()
+            deliver_header.delivery_no = del_no
+            deliver_header.save()
+            del_id = deliver_header.id
+            for key in deli:
+                if key == "delivery_id":
+                    deli[key] = del_id
+
+        serializer = self.get_serializer(data=reqdata, many=True)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
         headers = self.get_success_headers(serializer.data)
@@ -104,6 +119,21 @@ class DeliveryDetailsFromSAPView(generics.GenericAPIView, mixins.ListModelMixin,
 class DeliveryDetailsListView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = DeliveryDetailsSerializer
     queryset = DeliveryDetails.objects.all()
+    lookup_field = 'CUST_ID'
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get(self, request, CUST_ID=None):
+
+        if CUST_ID:
+            return self.retrieve(request)
+        else:
+            return self.list(request)
+
+
+class DeliveryGroupView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = DeliveryGroupSerializer
+    queryset = DeliveryDetails.objects.values('DEL_NO', 'REGION').annotate(TOT_WGT=Sum('TOT_WGT'),
+                                                                           VOLUME=Sum('VOLUME'))
     lookup_field = 'CUST_ID'
     permission_classes = (permissions.IsAuthenticated,)
 

@@ -31,6 +31,7 @@ urlpatterns = [
     path('api_plant/', include('masterdata.urls')),
     path('api_customer/', include('masterdata.urls')),
     path('api_delivery_details/', include('masterdata.urls')),
+    path('api_freight/', include('freight_order.urls')),
 ]
 
 
