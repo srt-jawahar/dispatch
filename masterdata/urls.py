@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import PlantFromSAPView, PlantListView
 from .views import CustomerFromSAPView, CustomerListView
-from .views import DeliveryDetailsFromSAPView, DeliveryDetailsListView
+from .views import DeliveryDetailsFromSAPView, DeliveryDetailsListView, DeliveryGroupView
 
 
 urlpatterns = [
@@ -22,6 +22,7 @@ urlpatterns = [
    path('createDeliveryDetails/', DeliveryDetailsFromSAPView.as_view()),
    path('getAllDeliveryDetails/', DeliveryDetailsListView.as_view()),
    path('getDeliveryDetails/<str:CUST_ID>/', DeliveryDetailsListView.as_view()),
+   path('getGroupDelivery/', DeliveryGroupView.as_view()),
 ]
 
 
