@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 
 from .views import RegistrationView, VerifyEmail, LoginAPIView, PasswordTokenCheckAPI, RequestPasswordResetViaEmail, \
     SetNewPasswordAPIView, LogoutAPIView, GetAllUsersView, ChangePasswordView, UpdateProfileView, \
-    UserAvatarUpload, GetAUserView, RoleListView, RoleUpdateRetrieveView, UserStatusView
+    UserAvatarUpload, GetAUserView, RoleListView, RoleUpdateRetrieveView, UserStatusView, AdminUserUpdateView
 
 urlpatterns = [
     path('register/', RegistrationView.as_view(), name='register'),
@@ -22,6 +22,7 @@ urlpatterns = [
     path("role/", RoleListView.as_view(), name="role_get_details"),
     path("role/<int:pk>/", RoleUpdateRetrieveView.as_view(), name="role_get_details"),
     path("user_status/<int:pk>/", UserStatusView.as_view(), name="user_status"),
+    path("user_update/<int:pk>/", AdminUserUpdateView.as_view(), name="admin_user_update"),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

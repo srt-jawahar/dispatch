@@ -18,3 +18,24 @@ class TruckDetails(models.Model):
     start_date = models.DateTimeField()
     end_date = models.DateTimeField()
     is_active = models.BooleanField()
+
+    def __str__(self):
+        return self.truck_type
+
+
+class TruckAvailability(models.Model):
+    class Meta:
+        ordering = ['created_at']
+
+    transportor_name = models.CharField(max_length=255, null=False)
+    truck_type = models.ForeignKey(TruckDetails, on_delete=models.CASCADE)
+    source_location = models.CharField(max_length=255)
+    destination = models.CharField(max_length=255)
+    no_of_trucks = models.CharField(max_length=255)
+    availability = models.CharField(max_length=255)
+    created_at = models.DateTimeField()
+    remarks = models.CharField(max_length=255)
+    no_of_trucks_reserved = models.IntegerField()
+
+    def __str__(self):
+        return self.transportor_name

@@ -13,7 +13,8 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from .serializers import RegisterSerializer, EmailVerificationSerializer, LoginSerializer, \
     ResetPasswordViaEmailSerializer, SetNewPasswordSerializer, LogoutSerializer, UserSerializer, \
-    ChangePasswordSerializer, UpdateUserSerializer, UserAvatarSerializer, RoleSerializer, UserRoleSerializer
+    ChangePasswordSerializer, UpdateUserSerializer, UserAvatarSerializer, RoleSerializer, UserRoleSerializer, \
+    AdminUserUpdateSerializer
 from .models import User, Role
 from .utils import Utils
 from .renderers import UserRenderer
@@ -222,3 +223,9 @@ class UserStatusView(generics.UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserRoleSerializer
     permission_classes = [permissions.IsAuthenticated]
+
+
+class AdminUserUpdateView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    serializer_class = AdminUserUpdateSerializer
+    permission_classes = [permissions.IsAdminUser, permissions.IsAuthenticated]

@@ -12,6 +12,7 @@ from .models import User, Role
 
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(max_length=50, min_length=8, write_only=True)
+    role = serializers.CharField(required=True)
 
     class Meta:
         model = User
@@ -147,7 +148,7 @@ class LogoutSerializer(serializers.Serializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['id', 'username', 'email', 'is_active', 'is_superuser', 'last_login', 'created_at', 'role']
+        fields = '__all__'
 
 
 class ChangePasswordSerializer(serializers.ModelSerializer):
@@ -232,3 +233,11 @@ class UserRoleSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ['is_active']
+
+
+class AdminUserUpdateSerializer(serializers.ModelSerializer):
+    role = serializers.CharField(required=True)
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'role']

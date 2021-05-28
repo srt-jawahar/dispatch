@@ -1,7 +1,7 @@
 from rest_framework import generics
 from rest_framework.permissions import IsAuthenticated
-from .serializers import TruckSerializer
-from .models import TruckDetails
+from .serializers import TruckSerializer, TruckAvailabilitySerializer
+from .models import TruckDetails, TruckAvailability
 
 
 class TruckListCreateView(generics.ListCreateAPIView):
@@ -13,4 +13,16 @@ class TruckListCreateView(generics.ListCreateAPIView):
 class TruckUpdateRetrieveDeleteView(generics.RetrieveUpdateDestroyAPIView):
     queryset = TruckDetails.objects.all()
     serializer_class = TruckSerializer
+    permission_classes = [IsAuthenticated]
+
+
+class TruckAvailabilityListCreateView(generics.ListCreateAPIView):
+    queryset = TruckAvailability.objects.all()
+    serializer_class = TruckAvailabilitySerializer
+    permission_classes = [IsAuthenticated]
+
+
+class TruckAvailibilityUpdateRetrieveDeleteView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TruckAvailability.objects.all()
+    serializer_class = TruckAvailabilitySerializer
     permission_classes = [IsAuthenticated]
