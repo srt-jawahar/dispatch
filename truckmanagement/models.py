@@ -27,7 +27,7 @@ class TruckAvailability(models.Model):
     class Meta:
         ordering = ['created_at']
 
-    transportor_name = models.CharField(max_length=255, null=False)
+    transportor_name = models.CharField(max_length=255, null=False, blank=True)
     truck_type = models.ForeignKey(TruckDetails, on_delete=models.CASCADE)
     source_location = models.CharField(max_length=255)
     destination = models.CharField(max_length=255)
