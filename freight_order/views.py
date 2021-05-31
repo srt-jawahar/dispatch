@@ -80,20 +80,20 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                 return Response({"message": "No available trucks"}, status=status.HTTP_400_BAD_REQUEST)
 
             min_truck_value = TruckDetails.objects.filter(id__in=avail_truck_ids,
-                                                          truck_max_capacity__gte=freight_order.total_weight).aggregate(
-                truck_max_capacity=Min('truck_max_capacity'))
+                                                          truck_total_weight__gte=freight_order.total_weight).aggregate(
+                truck_total_weight=Min('truck_total_weight'))
             truck_count = 2
             for truck in min_truck_value:
                 if min_truck_value[truck] is None:
                     next_min_truck_value = TruckDetails.objects.filter(id__in=avail_truck_ids).aggregate(
-                        truck_max_capacity=Min('truck_max_capacity'))
+                        truck_total_weight=Min('truck_total_weight'))
                     for tru in next_min_truck_value:
                         second_value = next_min_truck_value[tru]
-                        for i in range(2, 10, 1):
+                        for i in range(2, 100, 1):
                             if second_value * i >= freight_order.total_weight:
                                 truck_count = i
                                 final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids,
-                                                                             truck_max_capacity=next_min_truck_value[
+                                                                             truck_total_weight=next_min_truck_value[
                                                                                  tru]).values('id')
                                 final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
                                 for final_truck in final_avail_truck:
@@ -101,7 +101,7 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                     freight_order.no_of_trucks = truck_count
                                 break
                 else:
-                    final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_max_capacity=min_truck_value[truck]).values('id')
+                    final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_total_weight=min_truck_value[truck]).values('id')
                     final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
                     truck_count = 1
                     for final_truck in final_avail_truck:
