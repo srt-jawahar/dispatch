@@ -15,8 +15,7 @@ class TruckAvailabilitySerializer(serializers.ModelSerializer):
 
 
 class GetTruckAvailabilitySerializer(serializers.ModelSerializer):
-    truck_master = TruckSerializer(many=False, read_only=True)
-
     class Meta:
         model = TruckAvailability
-        fields = ['truck_master', 'source_location', 'destination', 'no_of_trucks', 'availability', 'created_at', 'remarks', 'no_of_trucks_reserved']
+        fields = "__all__"
+        depth=1

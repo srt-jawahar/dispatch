@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'drf_yasg',
     'corsheaders',
     'django_seed',
-    'app',
     'truckmanagement',
     'masterdata',
     'freight_order'

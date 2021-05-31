@@ -28,12 +28,12 @@ class TruckAvailability(models.Model):
         ordering = ['created_at']
 
     transportor_name = models.CharField(max_length=255, null=False, blank=True)
-    truck_type = models.ForeignKey(TruckDetails, on_delete=models.CASCADE)
+    truck_type = models.ForeignKey('TruckDetails', on_delete=models.CASCADE)
     source_location = models.CharField(max_length=255)
     destination = models.CharField(max_length=255)
     no_of_trucks = models.CharField(max_length=255)
     availability = models.CharField(max_length=255)
-    created_at = models.DateTimeField()
+    created_at = models.DateTimeField(auto_now_add=True)
     remarks = models.CharField(max_length=255)
     no_of_trucks_reserved = models.IntegerField()
 
