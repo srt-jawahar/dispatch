@@ -98,7 +98,7 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                 break
                 else:
                     final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_max_capacity=min_truck_value[truck]).values('id')
-                    final_avail_truck = TruckAvailability.objects.filter(truck_type_id=final_truck_id)
+                    final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
                     truck_count = 1
                     for final_truck in final_avail_truck:
                         freight_order.suggested_truck_type = final_truck.truck_type
