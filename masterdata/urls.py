@@ -24,6 +24,3 @@ urlpatterns = [
    path('getDeliveryDetails/<str:CUST_ID>/', DeliveryDetailsListView.as_view()),
    path('getGroupDelivery/', DeliveryGroupView.as_view()),
 ]
-
-
-

@@ -1,10 +1,12 @@
-from django.db.models import Max
+from django.db.models import Max, Min
 from django.shortcuts import render
 from rest_framework import mixins, status, permissions
 from rest_framework import generics
 from .serializers import FreightOrdersSerializer
 from .models import FreightOrders
 from rest_framework.response import Response
+from truckmanagement.models import TruckAvailability, TruckDetails
+
 
 # Starting of freight order creation
 class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
@@ -50,11 +52,12 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
         freight_order_no_max = ''
         next_freight_number = FreightOrders.objects.aggregate(freight_order_no_max=Max('freight_order_no'))
 
-        # Max value returned as dictionary type. So that try to get that max value and defaulted to 10000 if Key error
-        try:
-            freight_order_no_max = next_freight_number[freight_order_no_max]
-        except KeyError:
-            freight_order_no_max = '10000'
+        # Max value returned as dictionary type. So that try to get that max value and defaulted to 10000 if None
+        for next_no in next_freight_number:
+            if next_freight_number[next_no] is None:
+                freight_order_no_max = '10000'
+            else:
+                freight_order_no_max = next_freight_number[next_no]
 
         # iterate the grouped delivery numbers to create freight orders
         for deli_no in total_weight:
@@ -65,10 +68,42 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
             freight_order.delivery_no = deli_no
             freight_order.total_weight = total_weight[deli_no]
             freight_order.total_volume = total_volume[deli_no]
-            freight_order.from_location = 'from'
+            freight_order.from_location = 'chennai'
             freight_order.destination = destination[deli_no]
-            freight_order.suggested_truck_type = 'TruckA'
-            freight_order.no_of_trucks = 2
+
+            # suggested truck logic
+            avail_truck_ids = TruckAvailability.objects.filter(source_location=freight_order.from_location,
+                                                               destination=freight_order.destination,
+                                                               no_of_trucks__gte=1).values('truck_type_id')
+            min_truck_value = TruckDetails.objects.filter(id__in=avail_truck_ids,
+                                                          truck_max_capacity__gte=freight_order.total_weight).aggregate(
+                truck_max_capacity=Min('truck_max_capacity'))
+            truck_count = 2
+            for truck in min_truck_value:
+                if min_truck_value[truck] is None:
+                    next_min_truck_value = TruckDetails.objects.filter(id__in=avail_truck_ids).aggregate(
+                        truck_max_capacity=Min('truck_max_capacity'))
+                    for tru in next_min_truck_value:
+                        second_value = next_min_truck_value[tru]
+                        for i in range(2, 10, 1):
+                            if second_value * i >= freight_order.total_weight:
+                                truck_count = i
+                                final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids,
+                                                                             truck_max_capacity=next_min_truck_value[
+                                                                                 tru]).values('id')
+                                final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
+                                for final_truck in final_avail_truck:
+                                    freight_order.suggested_truck_type = final_truck.truck_type
+                                    freight_order.no_of_trucks = truck_count
+                                break
+                else:
+                    final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_max_capacity=min_truck_value[truck]).values('id')
+                    final_avail_truck = TruckAvailability.objects.filter(truck_type_id=final_truck_id)
+                    truck_count = 1
+                    for final_truck in final_avail_truck:
+                        freight_order.suggested_truck_type = final_truck.truck_type
+                        freight_order.no_of_trucks = truck_count
+
             freight_order.save()
 
         return Response(status=status.HTTP_201_CREATED)
