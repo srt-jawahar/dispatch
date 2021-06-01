@@ -18,6 +18,7 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     suggested_truck_type = models.CharField(max_length=30)
     no_of_trucks = models.IntegerField()
     truck_status = models.CharField(choices=status, max_length=30, default='Suggested')
+    transportor_name = models.CharField(max_length=255, null=False, blank=True)
 
     class Meta:
         db_table = 'freight_orders'

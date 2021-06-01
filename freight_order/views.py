@@ -77,7 +77,7 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                                                destination=freight_order.destination,
                                                                no_of_trucks__gte=1).values('truck_type_id')
             if not avail_truck_ids:
-                return Response({"message": "No available trucks"}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "No available trucks for the delivery no " + deli_no}, status=status.HTTP_400_BAD_REQUEST)
 
             min_truck_value = TruckDetails.objects.filter(id__in=avail_truck_ids,
                                                           truck_total_weight__gte=freight_order.total_weight).aggregate(
@@ -96,6 +96,9 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                                                              truck_total_weight=next_min_truck_value[
                                                                                  tru]).values('id')
                                 final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
+                                if not final_avail_truck:
+                                    return Response({"message": "No available trucks for the delivery no " + deli_no},
+                                                    status=status.HTTP_400_BAD_REQUEST)
                                 for final_truck in final_avail_truck:
                                     freight_order.suggested_truck_type = final_truck.truck_type
                                     freight_order.no_of_trucks = truck_count
@@ -104,6 +107,9 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                     final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_total_weight=min_truck_value[truck]).values('id')
                     final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
                     truck_count = 1
+                    if not final_avail_truck:
+                        return Response({"message": "No available trucks for the delivery no " + deli_no},
+                                        status=status.HTTP_400_BAD_REQUEST)
                     for final_truck in final_avail_truck:
                         freight_order.suggested_truck_type = final_truck.truck_type
                         freight_order.no_of_trucks = truck_count
@@ -133,6 +139,7 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
             for order in freight_order:
                 order.suggested_truck_type = freight_data.get('suggested_truck_type', None)
                 order.no_of_trucks = freight_data.get('no_of_trucks', None)
+                order.transportor_name = freight_data.get('transportor_name', None)
                 order.truck_status = 'Confirmed'
                 order.save()
 
