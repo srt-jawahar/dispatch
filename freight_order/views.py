@@ -3,8 +3,9 @@ from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import mixins, status, permissions
 from rest_framework import generics
-from .serializers import FreightOrdersSerializer, FreightTruckAssignSerializer
-from .models import FreightOrders
+from .serializers import FreightOrdersSerializer, FreightTruckAssignSerializer, FreightTruckConfirmSerializer, \
+                         FreightOrdersGetSerializer
+from .models import FreightOrders, FreightTruckAssignments
 from rest_framework.response import Response
 from truckmanagement.models import TruckAvailability, TruckDetails
 
@@ -14,9 +15,6 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
     serializer_class = FreightOrdersSerializer
     queryset = FreightOrders.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
-
-    def get(self, request):
-        return self.list(request)
 
     def post(self, request):
         # get the data which sent from UI
@@ -29,6 +27,9 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
         total_volume = {}
         from_location = {}
         destination = {}
+        final_suggested_truck_type = ''
+        final_no_of_trucks = 0
+        user_name = request.user.username
 
         # iterate the data to calculate total weight and total volume
         for deli in reqdata:
@@ -100,8 +101,8 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                     return Response({"message": "No available trucks for the delivery no " + deli_no},
                                                     status=status.HTTP_400_BAD_REQUEST)
                                 for final_truck in final_avail_truck:
-                                    freight_order.suggested_truck_type = final_truck.truck_type
-                                    freight_order.no_of_trucks = truck_count
+                                    final_suggested_truck_type = final_truck.truck_type
+                                    final_no_of_trucks = truck_count
                                 break
                 else:
                     final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_total_weight=min_truck_value[truck]).values('id')
@@ -111,12 +112,21 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                         return Response({"message": "No available trucks for the delivery no " + deli_no},
                                         status=status.HTTP_400_BAD_REQUEST)
                     for final_truck in final_avail_truck:
-                        freight_order.suggested_truck_type = final_truck.truck_type
-                        freight_order.no_of_trucks = truck_count
+                        final_suggested_truck_type = final_truck.truck_type
+                        final_no_of_trucks = truck_count
 
-            freight_order.created_by = request.user.username
-            freight_order.updated_by = request.user.username
+            freight_order.created_by = user_name
+            freight_order.updated_by = user_name
             freight_order.save()
+            # Suggested Truck assignments
+            freight_truck_assign = FreightTruckAssignments()
+            freight_truck_assign.freight_order = freight_order
+            freight_truck_assign.freight_order_no = freight_order.freight_order_no
+            freight_truck_assign.suggested_truck_type = final_suggested_truck_type
+            freight_truck_assign.no_of_trucks = final_no_of_trucks
+            freight_truck_assign.created_by = user_name
+            freight_truck_assign.updated_by = user_name
+            freight_truck_assign.save()
 
         return Response(status=status.HTTP_201_CREATED)
 # Ending of freight order creation
@@ -140,8 +150,54 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                 order.suggested_truck_type = freight_data.get('suggested_truck_type', None)
                 order.no_of_trucks = freight_data.get('no_of_trucks', None)
                 order.transportor_name = freight_data.get('transportor_name', None)
-                order.truck_status = 'Confirmed'
+                order.freight_status = FreightOrders.ASSIGNED
                 order.save()
 
                 return Response(status=status.HTTP_200_OK)
 # Ending of truck assignment to the freight orders
+
+
+# Starting of truck confirmation to the freight orders
+class FreightTruckConfirmView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    serializer_class = FreightTruckConfirmSerializer
+    queryset = FreightOrders.objects.all()
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def put(self, request):
+        reqdata = request.data
+        serializer = self.get_serializer(data=reqdata, many=True)
+        serializer.is_valid(raise_exception=True)
+
+        user_name = request.user.username
+
+        for freight_data in reqdata:
+            freight_order_no = freight_data.get('freight_order_no', None)
+            freight_order = FreightOrders.objects.filter(freight_order_no=freight_order_no)
+            if not freight_order:
+                return Response({"message": "No fright order : " + freight_order_no},
+                                status=status.HTTP_400_BAD_REQUEST)
+            for order in freight_order:
+                # Get the details from truck assignment and update the confirmation details
+                fright_assignments = FreightTruckAssignments.objects.filter(freight_order_no=freight_order_no)
+                for fright_assign in fright_assignments:
+                    fright_assign.suggested_truck_type = freight_data.get('suggested_truck_type', None)
+                    fright_assign.no_of_trucks = freight_data.get('no_of_trucks', None)
+                    fright_assign.updated_by = user_name
+                    fright_assign.save()
+
+                # Update status
+                order.freight_status = FreightOrders.CONFIRMED
+                order.updated_by = user_name
+                order.save()
+
+                return Response(status=status.HTTP_200_OK)
+# Ending of truck confirmation to the freight orders
+
+
+# To get all freight order list
+class GetAllFreightView(generics.ListAPIView):
+    serializer_class = FreightOrdersGetSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return FreightOrders.objects.all()

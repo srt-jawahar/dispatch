@@ -3,10 +3,17 @@ from masterdata.models import DateAuditModel, UserAuditModel
 
 
 class FreightOrders(DateAuditModel, UserAuditModel):
+    # Constants
+    SUGGESTED = 'Suggested'
+    OPEN = 'Open'
+    CONFIRMED = 'Confirmed'
+    ASSIGNED = 'Assigned'
+
     status = (
-        ("Suggested", "Initial suggest status"),
-        ("Open", "Open status to take decision"),
-        ("Confirmed", "Confirmation status"),
+        (SUGGESTED, "Initial suggest status"),
+        (OPEN, "Open status to take decision"),
+        (CONFIRMED, "Confirmation status"),
+        (ASSIGNED, "Truck Assign status"),
     )
     freight_order_no = models.CharField(max_length=30, unique=True)
     delivery_id = models.ManyToManyField('masterdata.DeliveryHeaders')
@@ -15,10 +22,18 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     total_weight = models.DecimalField(max_digits=15, decimal_places=2)
     from_location = models.CharField(max_length=10)
     destination = models.CharField(max_length=10)
-    suggested_truck_type = models.CharField(max_length=30)
-    no_of_trucks = models.IntegerField()
-    truck_status = models.CharField(choices=status, max_length=30, default='Suggested')
-    transportor_name = models.CharField(max_length=255, null=False, blank=True)
+    freight_status = models.CharField(choices=status, max_length=30, default=SUGGESTED)
 
     class Meta:
         db_table = 'freight_orders'
+
+
+class FreightTruckAssignments(DateAuditModel, UserAuditModel):
+    freight_order = models.ForeignKey('FreightOrders', on_delete=models.CASCADE)
+    freight_order_no = models.CharField(max_length=30)
+    suggested_truck_type = models.CharField(max_length=30)
+    no_of_trucks = models.IntegerField()
+    transportor_name = models.CharField(max_length=255, null=False, blank=True)
+
+    class Meta:
+        db_table = 'freight_truck_assignments'
