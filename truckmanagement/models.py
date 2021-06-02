@@ -3,7 +3,7 @@ from django.db import models
 
 # Create your models here.
 class TruckDetails(models.Model):
-    truck_type = models.CharField(max_length=255)
+    truck_type = models.CharField(max_length=255, unique=True)
     length_in_feet = models.FloatField()
     width_in_feet = models.FloatField()
     height_in_feet = models.FloatField()
@@ -26,7 +26,7 @@ class TruckDetails(models.Model):
 class TruckAvailability(models.Model):
     class Meta:
         ordering = ['created_at']
-
+    user_detail = models.ForeignKey('authentication.User', on_delete=models.CASCADE)
     transportor_name = models.CharField(max_length=255, null=False, blank=True)
     truck_type = models.ForeignKey('TruckDetails', on_delete=models.CASCADE)
     source_location = models.CharField(max_length=255)

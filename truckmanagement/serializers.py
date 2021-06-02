@@ -18,4 +18,4 @@ class GetTruckAvailabilitySerializer(serializers.ModelSerializer):
     class Meta:
         model = TruckAvailability
         fields = "__all__"
-        depth=1
+        depth = 1
