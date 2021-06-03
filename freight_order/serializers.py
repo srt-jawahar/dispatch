@@ -6,7 +6,7 @@ class FreightOrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = FreightOrders
         fields = '__all__'
-        read_only_fields = ('created_by', 'updated_by', 'freight_order_no', 'from_location',
+        read_only_fields = ('created_by', 'updated_by', 'freight_order_no',
                             'delivery_id', 'transportor_name')
 
 
@@ -32,7 +32,7 @@ class FreightTruckAssignmentsSerializer(serializers.ModelSerializer):
 
 
 class FreightOrdersGetSerializer(serializers.ModelSerializer):
-    freighttruckassignments_set = FreightTruckAssignmentsSerializer(many=True)
+    truck_types = FreightTruckAssignmentsSerializer(many=True)
     class Meta:
         model = FreightOrders
         fields = '__all__'

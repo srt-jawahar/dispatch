@@ -27,6 +27,10 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     class Meta:
         db_table = 'freight_orders'
 
+    @property
+    def truck_types(self):
+        return self.freighttruckassignments_set.all()
+
 
 class FreightTruckAssignments(DateAuditModel, UserAuditModel):
     freight_order = models.ForeignKey('FreightOrders', on_delete=models.CASCADE)

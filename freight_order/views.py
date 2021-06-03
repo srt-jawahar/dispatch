@@ -13,7 +13,6 @@ from truckmanagement.models import TruckAvailability, TruckDetails
 # Starting of freight order creation
 class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = FreightOrdersSerializer
-    queryset = FreightOrders.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
 
     def post(self, request):
@@ -37,6 +36,7 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
             weight = deli.get('total_weight', None)
             volume = deli.get('total_volume', None)
             region = deli.get('destination', None)
+            from_loc = deli.get('from_location', None)
 
             try:
                 initial_value_weight = total_weight[del_no]
@@ -49,6 +49,7 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
             total_volume[del_no] = initial_value_vol + volume
 
             destination[del_no] = region
+            from_location[del_no] = from_loc
 
         # get max freight order no from DB to create the new freight orders
         freight_order_no_max = ''
@@ -70,13 +71,15 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
             freight_order.delivery_no = deli_no
             freight_order.total_weight = total_weight[deli_no]
             freight_order.total_volume = total_volume[deli_no]
-            freight_order.from_location = 'chennai'
+            freight_order.from_location = from_location[deli_no]
             freight_order.destination = destination[deli_no]
 
             # suggested truck logic
-            avail_truck_ids = TruckAvailability.objects.filter(source_location=freight_order.from_location,
+            '''avail_truck_ids = TruckAvailability.objects.filter(source_location=freight_order.from_location,
                                                                destination=freight_order.destination,
-                                                               no_of_trucks__gte=1).values('truck_type_id')
+                                                               no_of_trucks__gte=1).values('truck_type_id')'''
+            avail_truck_ids = TruckAvailability.objects.filter(source_location=freight_order.from_location,
+                                                               destination=freight_order.destination).values('truck_type_id')
             if not avail_truck_ids:
                 return Response({"message": "No available trucks for the delivery no " + deli_no}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -132,35 +135,9 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
 # Ending of freight order creation
 
 
-# Starting of truck assignment to the freight orders
-class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
-    serializer_class = FreightTruckAssignSerializer
-    queryset = FreightOrders.objects.all()
-    permission_classes = (permissions.IsAuthenticated,)
-
-    def put(self, request):
-        reqdata = request.data
-        serializer = self.get_serializer(data=reqdata, many=True)
-        serializer.is_valid(raise_exception=True)
-
-        for freight_data in reqdata:
-            freight_order_no = freight_data.get('freight_order_no', None)
-            freight_order = FreightOrders.objects.filter(freight_order_no=freight_order_no)
-            for order in freight_order:
-                order.suggested_truck_type = freight_data.get('suggested_truck_type', None)
-                order.no_of_trucks = freight_data.get('no_of_trucks', None)
-                order.transportor_name = freight_data.get('transportor_name', None)
-                order.freight_status = FreightOrders.ASSIGNED
-                order.save()
-
-                return Response(status=status.HTTP_200_OK)
-# Ending of truck assignment to the freight orders
-
-
 # Starting of truck confirmation to the freight orders
 class FreightTruckConfirmView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
     serializer_class = FreightTruckConfirmSerializer
-    queryset = FreightOrders.objects.all()
     permission_classes = (permissions.IsAuthenticated,)
 
     def put(self, request):
@@ -177,6 +154,12 @@ class FreightTruckConfirmView(generics.GenericAPIView, mixins.ListModelMixin, mi
                 return Response({"message": "No fright order : " + freight_order_no},
                                 status=status.HTTP_400_BAD_REQUEST)
             for order in freight_order:
+                if FreightOrders.CONFIRMED == order.freight_status:
+                    return Response({"message": "Fright order:" +freight_order_no+ " already confirmed"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                if FreightOrders.ASSIGNED == order.freight_status:
+                    return Response({"message": "Fright order:" +freight_order_no+ " already assigned"},
+                                    status=status.HTTP_400_BAD_REQUEST)
                 # Get the details from truck assignment and update the confirmation details
                 fright_assignments = FreightTruckAssignments.objects.filter(freight_order_no=freight_order_no)
                 for fright_assign in fright_assignments:
@@ -201,3 +184,61 @@ class GetAllFreightView(generics.ListAPIView):
 
     def get_queryset(self):
         return FreightOrders.objects.all()
+
+
+# To get confirmed freight order list to assign truck
+class GetConfirmedFreightView(generics.ListAPIView):
+    serializer_class = FreightOrdersGetSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return FreightOrders.objects.filter(freight_status=FreightOrders.CONFIRMED)
+
+
+# Starting of truck assignment to the freight orders
+class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mixins.RetrieveModelMixin):
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def put(self, request):
+        reqdata = request.data
+        # serializer = self.get_serializer(data=reqdata, many=True)
+        # serializer.is_valid(raise_exception=True)
+
+        user_name = request.user.username
+
+        for freight_data in reqdata:
+            freight_order_no = freight_data.get('freight_order_no', None)
+            freight_order = FreightOrders.objects.filter(freight_order_no=freight_order_no)
+            if not freight_order:
+                return Response({"message": "No fright order : " + freight_order_no},
+                                status=status.HTTP_400_BAD_REQUEST)
+            for order in freight_order:
+                if FreightOrders.ASSIGNED == order.freight_status:
+                    return Response({"message": "Fright order:" +freight_order_no+ " already assigned"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                # Get the details from truck assignment and update the confirmation details
+                FreightTruckAssignments.objects.filter(freight_order_no=freight_order_no).delete()
+                if not freight_data.get('truck_types'):
+                    return Response({"message": "truck_types mandatory"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                for fright_assign in freight_data.get('truck_types', None):
+                    if not fright_assign.get('transportor_name'):
+                        return Response({"message": "Transporter name mandatory"},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                    new_freight_assign = FreightTruckAssignments()
+                    new_freight_assign.freight_order = order
+                    new_freight_assign.freight_order_no = order.freight_order_no
+                    new_freight_assign.suggested_truck_type = fright_assign.get('suggested_truck_type', None)
+                    new_freight_assign.no_of_trucks = fright_assign.get('no_of_trucks', None)
+                    new_freight_assign.transportor_name = fright_assign.get('transportor_name', None)
+                    new_freight_assign.created_by = user_name
+                    new_freight_assign.updated_by = user_name
+                    new_freight_assign.save()
+
+                # Update status
+                order.freight_status = FreightOrders.ASSIGNED
+                order.updated_by = user_name
+                order.save()
+
+                return Response(status=status.HTTP_200_OK)
+# Ending of truck assignment to the freight orders
