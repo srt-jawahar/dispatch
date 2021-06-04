@@ -216,6 +216,9 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                 if FreightOrders.ASSIGNED == order.freight_status:
                     return Response({"message": "Fright order:" +freight_order_no+ " already assigned"},
                                     status=status.HTTP_400_BAD_REQUEST)
+                if FreightOrders.SUGGESTED == order.freight_status:
+                    return Response({"message": "Fright order:" +freight_order_no+ " should be confirmed"},
+                                    status=status.HTTP_400_BAD_REQUEST)
                 # Get the details from truck assignment and update the confirmation details
                 FreightTruckAssignments.objects.filter(freight_order_no=freight_order_no).delete()
                 if not freight_data.get('truck_types'):
@@ -233,10 +236,19 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                     new_freight_assign.transportor_name = fright_assign.get('transportor_name', None)
                     new_freight_assign.created_by = user_name
                     new_freight_assign.updated_by = user_name
+                    # update the reserved truck
+                    truck_type = TruckDetails.objects.filter(truck_type=new_freight_assign.suggested_truck_type).first()
+                    truck_availability = TruckAvailability.objects.filter(transportor_name=new_freight_assign.transportor_name,
+                                                                           truck_type=truck_type).first()
+                    truck_availability.no_of_trucks_reserved = truck_availability.no_of_trucks_reserved+\
+                                                               new_freight_assign.no_of_trucks
+                    truck_availability.save()
                     new_freight_assign.save()
 
                 # Update status
                 order.freight_status = FreightOrders.ASSIGNED
+                if freight_data.get('remarks'):
+                    order.remarks = freight_data.get('remarks')
                 order.updated_by = user_name
                 order.save()
 
