@@ -35,6 +35,7 @@ class TruckAvailability(models.Model):
     availability = models.CharField(max_length=255)
     created_at = models.DateTimeField(auto_now_add=True)
     remarks = models.CharField(max_length=255)
+    status = models.BooleanField(default=True)
     no_of_trucks_reserved = models.IntegerField()
 
     def __str__(self):
