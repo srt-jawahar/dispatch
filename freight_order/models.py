@@ -23,6 +23,7 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     from_location = models.CharField(max_length=10)
     destination = models.CharField(max_length=10)
     freight_status = models.CharField(choices=status, max_length=30, default=SUGGESTED)
+    remarks = models.CharField(max_length=255, null=False, blank=True)
 
     class Meta:
         db_table = 'freight_orders'
