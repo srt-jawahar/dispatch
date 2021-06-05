@@ -47,5 +47,23 @@ class GetTrucksAvailabilityDetailsView(generics.ListAPIView):
         queryset = TruckAvailability.objects.all()
         if from_location is not None:
             queryset = queryset.filter(source_location=from_location, destination=to_location, status=True,
-                                       truck_type__truck_total_weight__lte=total_weight).order_by('truck_type__truck_type')
+                                       truck_type__truck_total_weight__lte=total_weight).order_by(
+                'truck_type__truck_type')
+        return queryset
+
+
+class GetTrucksAvailabilityDetailsOfTruckTypeView(generics.ListAPIView):
+    serializer_class = GetTruckAvailabilitySerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        from_location = self.request.query_params.get('from_location')
+        to_location = self.request.query_params.get('to_location')
+        total_weight = self.request.query_params.get('total_weight')
+        truck_type = self.request.query_params.get('truck_type')
+        queryset = TruckAvailability.objects.all()
+        if from_location is not None:
+            queryset = queryset.filter(source_location=from_location, destination=to_location, status=True,
+                                       truck_type__truck_total_weight=total_weight, truck_type__truck_type=truck_type).order_by(
+                'truck_type__truck_type')
         return queryset
