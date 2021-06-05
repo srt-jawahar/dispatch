@@ -1,4 +1,3 @@
-from datetime import datetime
 from apscheduler.schedulers.background import BackgroundScheduler
 from freight_order.task import reset_no_of_trucks
 
