@@ -254,3 +254,12 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
 
                 return Response(status=status.HTTP_200_OK)
 # Ending of truck assignment to the freight orders
+
+
+# To get assigned freight order list to view
+class GetAssignedFreightView(generics.ListAPIView):
+    serializer_class = FreightOrdersGetSerializer
+    permission_classes = (permissions.IsAuthenticated,)
+
+    def get_queryset(self):
+        return FreightOrders.objects.filter(freight_status=FreightOrders.ASSIGNED)
