@@ -1,4 +1,4 @@
-from django.db.models import Max, Min
+from django.db.models import Max, Min, Q
 from django.http import JsonResponse
 from django.shortcuts import render
 from rest_framework import mixins, status, permissions
@@ -192,7 +192,7 @@ class GetConfirmedFreightView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return FreightOrders.objects.filter(freight_status=FreightOrders.CONFIRMED)
+        return FreightOrders.objects.filter(Q(freight_status=FreightOrders.CONFIRMED) | Q(freight_status=FreightOrders.ASSIGNED))
 
 
 # Starting of truck assignment to the freight orders
