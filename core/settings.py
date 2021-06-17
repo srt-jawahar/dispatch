@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django_seed',
     'truckmanagement',
     'masterdata',
-    'freight_order'
+    'freight_order',
+    'maps'
 ]
 
 SWAGGER_SETTINGS = {

@@ -32,6 +32,7 @@ urlpatterns = [
     path('api_customer/', include('masterdata.urls')),
     path('api_delivery_details/', include('masterdata.urls')),
     path('api_freight/', include('freight_order.urls')),
+    path('api_maps/', include('maps.urls')),
 ]
 
 
