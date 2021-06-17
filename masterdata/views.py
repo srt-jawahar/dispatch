@@ -3,7 +3,7 @@ from django.shortcuts import render
 from rest_framework import mixins, status, permissions
 from rest_framework import generics
 from .serializers import PlantSerializer, CustomerSerializer, DeliveryDetailsSerializer, DeliveryGroupSerializer
-from .models import Plants, Customers, DeliveryDetails, DeliveryHeaders
+from .models import Plants, Customers, DeliveryDetails
 from rest_framework.response import Response
 
 
@@ -89,7 +89,7 @@ class DeliveryDetailsFromSAPView(generics.GenericAPIView, mixins.ListModelMixin,
 
     def post(self, request, CUST_ID=None):
         reqdata = request.data
-        serializer = self.get_serializer(data=reqdata, many=True)
+        '''serializer = self.get_serializer(data=reqdata, many=True)
         serializer.is_valid(raise_exception=True)
 
         for deli in reqdata:
@@ -100,7 +100,7 @@ class DeliveryDetailsFromSAPView(generics.GenericAPIView, mixins.ListModelMixin,
             del_id = deliver_header.id
             for key in deli:
                 if key == "delivery_id":
-                    deli[key] = del_id
+                    deli[key] = del_id'''
 
         serializer = self.get_serializer(data=reqdata, many=True)
         serializer.is_valid(raise_exception=True)
