@@ -16,7 +16,6 @@ class FreightOrders(DateAuditModel, UserAuditModel):
         (ASSIGNED, "Truck Assign status"),
     )
     freight_order_no = models.CharField(max_length=30, unique=True)
-    delivery_id = models.ManyToManyField('masterdata.DeliveryHeaders')
     delivery_no = models.CharField(max_length=10)
     total_volume = models.DecimalField(max_digits=13, decimal_places=2)
     total_weight = models.DecimalField(max_digits=15, decimal_places=2)

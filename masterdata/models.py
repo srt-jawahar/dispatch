@@ -37,17 +37,16 @@ class DeliveryDetails(models.Model):
     CUSTOMER = models.CharField(max_length=10, db_column='customer')
     REGION = models.CharField(max_length=10, db_column='region')
     PSTAT = models.CharField(max_length=1, db_column='process_status')
-    delivery_id = models.ForeignKey('DeliveryHeaders', on_delete=models.CASCADE, default=4)
 
     class Meta:
         db_table = 'delivery_details'
 
 
-class DeliveryHeaders(models.Model):
+'''class DeliveryHeaders(models.Model):
     delivery_no = models.CharField(max_length=10,  unique=True)
 
     class Meta:
-        db_table = 'delivery_headers'
+        db_table = 'delivery_headers'''''
 
 
 class DateAuditModel(models.Model):
