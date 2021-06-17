@@ -61,6 +61,7 @@ class User(AbstractBaseUser, PermissionsMixin):
         ("ROLE_PLANNING_MANAGER", "Freight Planning Manager"),
         ("ROLE_TRACKER", "Tracker"),
         ("ROLE_FINAL_MANAGER", "Manager"),
+        ("ROLE_TRANSPORTOR", "Transportor"),
     )
 
     username = models.CharField(max_length=255, unique=True, db_index=True)
