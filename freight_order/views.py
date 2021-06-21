@@ -4,7 +4,7 @@ from django.shortcuts import render
 from rest_framework import mixins, status, permissions
 from rest_framework import generics
 from .serializers import FreightOrdersSerializer, FreightTruckAssignSerializer, FreightTruckConfirmSerializer, \
-                         FreightOrdersGetSerializer
+    FreightOrdersGetSerializer
 from .models import FreightOrders, FreightTruckAssignments
 from rest_framework.response import Response
 from truckmanagement.models import TruckAvailability, TruckDetails
@@ -79,9 +79,11 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                                                destination=freight_order.destination,
                                                                no_of_trucks__gte=1).values('truck_type_id')'''
             avail_truck_ids = TruckAvailability.objects.filter(source_location=freight_order.from_location,
-                                                               destination=freight_order.destination).values('truck_type_id')
+                                                               destination=freight_order.destination).values(
+                'truck_type_id')
             if not avail_truck_ids:
-                return Response({"message": "No available trucks for the delivery no " + deli_no}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "No available trucks for the delivery no " + deli_no},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             min_truck_value = TruckDetails.objects.filter(id__in=avail_truck_ids,
                                                           truck_total_weight__gte=freight_order.total_weight).aggregate(
@@ -108,7 +110,8 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
                                     final_no_of_trucks = truck_count
                                 break
                 else:
-                    final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids, truck_total_weight=min_truck_value[truck]).values('id')
+                    final_truck_id = TruckDetails.objects.filter(id__in=avail_truck_ids,
+                                                                 truck_total_weight=min_truck_value[truck]).values('id')
                     final_avail_truck = TruckAvailability.objects.filter(truck_type_id__in=final_truck_id)
                     truck_count = 1
                     if not final_avail_truck:
@@ -132,6 +135,8 @@ class FreightView(generics.GenericAPIView, mixins.ListModelMixin, mixins.Retriev
             freight_truck_assign.save()
 
         return Response(status=status.HTTP_201_CREATED)
+
+
 # Ending of freight order creation
 
 
@@ -155,10 +160,10 @@ class FreightTruckConfirmView(generics.GenericAPIView, mixins.ListModelMixin, mi
                                 status=status.HTTP_400_BAD_REQUEST)
             for order in freight_order:
                 if FreightOrders.CONFIRMED == order.freight_status:
-                    return Response({"message": "Fright order:" +freight_order_no+ " already confirmed"},
+                    return Response({"message": "Fright order:" + freight_order_no + " already confirmed"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 if FreightOrders.ASSIGNED == order.freight_status:
-                    return Response({"message": "Fright order:" +freight_order_no+ " already assigned"},
+                    return Response({"message": "Fright order:" + freight_order_no + " already assigned"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 # Get the details from truck assignment and update the confirmation details
                 fright_assignments = FreightTruckAssignments.objects.filter(freight_order_no=freight_order_no)
@@ -174,6 +179,8 @@ class FreightTruckConfirmView(generics.GenericAPIView, mixins.ListModelMixin, mi
                 order.save()
 
                 return Response(status=status.HTTP_200_OK)
+
+
 # Ending of truck confirmation to the freight orders
 
 
@@ -192,7 +199,8 @@ class GetConfirmedFreightView(generics.ListAPIView):
     permission_classes = (permissions.IsAuthenticated,)
 
     def get_queryset(self):
-        return FreightOrders.objects.filter(Q(freight_status=FreightOrders.CONFIRMED) | Q(freight_status=FreightOrders.ASSIGNED))
+        return FreightOrders.objects.filter(
+            Q(freight_status=FreightOrders.CONFIRMED) | Q(freight_status=FreightOrders.ASSIGNED))
 
 
 # Starting of truck assignment to the freight orders
@@ -214,10 +222,10 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                                 status=status.HTTP_400_BAD_REQUEST)
             for order in freight_order:
                 if FreightOrders.ASSIGNED == order.freight_status:
-                    return Response({"message": "Fright order:" +freight_order_no+ " already assigned"},
+                    return Response({"message": "Fright order:" + freight_order_no + " already assigned"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 if FreightOrders.SUGGESTED == order.freight_status:
-                    return Response({"message": "Fright order:" +freight_order_no+ " should be confirmed"},
+                    return Response({"message": "Fright order:" + freight_order_no + " should be confirmed"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 # Get the details from truck assignment and update the confirmation details
                 FreightTruckAssignments.objects.filter(freight_order_no=freight_order_no).delete()
@@ -238,9 +246,10 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                     new_freight_assign.updated_by = user_name
                     # update the reserved truck
                     truck_type = TruckDetails.objects.filter(truck_type=new_freight_assign.suggested_truck_type).first()
-                    truck_availability = TruckAvailability.objects.filter(transportor_name=new_freight_assign.transportor_name,
-                                                                           truck_type=truck_type).first()
-                    truck_availability.no_of_trucks_reserved = truck_availability.no_of_trucks_reserved+\
+                    truck_availability = TruckAvailability.objects.filter(
+                        transportor_name=new_freight_assign.transportor_name,
+                        truck_type=truck_type).first()
+                    truck_availability.no_of_trucks_reserved = truck_availability.no_of_trucks_reserved + \
                                                                new_freight_assign.no_of_trucks
                     truck_availability.save()
                     new_freight_assign.save()
@@ -253,6 +262,8 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                 order.save()
 
                 return Response(status=status.HTTP_200_OK)
+
+
 # Ending of truck assignment to the freight orders
 
 

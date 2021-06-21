@@ -5,7 +5,7 @@ from .models import FreightOrders, FreightTruckAssignments
 class FreightOrdersSerializer(serializers.ModelSerializer):
     class Meta:
         model = FreightOrders
-        fields = '__all__'
+        fields = ['delivery_no', 'total_volume', 'from_location', 'destination', 'freight_status', 'remarks']
         read_only_fields = ('created_by', 'updated_by', 'freight_order_no',
                             'delivery_id', 'transportor_name')
 
