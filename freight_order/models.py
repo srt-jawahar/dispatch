@@ -8,8 +8,9 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     OPEN = 'Open'
     CONFIRMED = 'Confirmed'
     ASSIGNED = 'Assigned'
+    CLOSED = 'Closed'
 
-    #TRUCK STATUS
+    # TRUCK STATUS
     TOWARDS_SOURCE = 'towards_source'
     REACHED_SOURCE = 'reached_source'
     LOADED = 'loaded'
@@ -17,6 +18,12 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     REACHED_DESTINATION = 'reached_destination'
     UNLOADING = 'unloading'
     TRIP_CLOSING = 'trip_closing'
+
+    # APPROVAL STATUS
+    ACCEPTED = 'Accepted'
+    REQUEST = 'Request'
+    WAITING = 'Waiting'
+    REJECTED = 'Rejected'
 
     truck_status = (
         (TOWARDS_SOURCE, 'Trip starts towards source destination'),
@@ -33,6 +40,14 @@ class FreightOrders(DateAuditModel, UserAuditModel):
         (OPEN, "Open status to take decision"),
         (CONFIRMED, "Confirmation status"),
         (ASSIGNED, "Truck Assign status"),
+        (CLOSED, "Truck Task Completed status"),
+    )
+
+    approval_status = (
+        (ACCEPTED, 'Accepted'),
+        (REQUEST, 'Request for additional info'),
+        (WAITING, 'Waiting for confirmation'),
+        (REJECTED, 'Rejected')
     )
 
     freight_order_no = models.CharField(max_length=30, unique=True)
@@ -47,6 +62,12 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     truck_driver_details = models.CharField(max_length=255, null=False, blank=True, default='')
     truck_current_pos = models.CharField(max_length=255, null=False, blank=True, default='')
     truck_status = models.CharField(choices=truck_status, max_length=30, default='')
+    total_distance = models.FloatField(default=0, null=False, blank=True)
+    dist_uom = models.CharField(max_length=255, default='', null=False, blank=True)
+    submission_date = models.DateTimeField(null=True, auto_now=False, auto_now_add=False)
+    total_amount = models.CharField(max_length=255, default='', null=False, blank=True)
+    advance_amount = models.FloatField(default=0, null=False, blank=True)
+    approval_status = models.CharField(max_length=255, choices=approval_status, default='', null=False, blank=True)
 
     class Meta:
         db_table = 'freight_orders'

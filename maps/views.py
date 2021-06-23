@@ -1,5 +1,6 @@
-from .serializers import GetFreightOrderStatusSerializers, UpdateFreightOrderStatusSerializers
-from rest_framework import viewsets,  generics
+from .serializers import GetFreightOrderStatusSerializers, UpdateFreightOrderStatusSerializers, \
+    EndFreightorderTripSerializers
+from rest_framework import viewsets, generics
 from freight_order.models import FreightOrders
 
 
@@ -20,4 +21,11 @@ class FreightOrderStatusView(viewsets.ModelViewSet):
 
 # Patch Particular freight order
 class FreightOrderUpdateView(generics.RetrieveUpdateAPIView):
+    queryset = FreightOrders.objects.all()
     serializer_class = UpdateFreightOrderStatusSerializers
+
+
+# End trip
+class EndTripView(generics.UpdateAPIView):
+    queryset = FreightOrders.objects.all()
+    serializer_class = EndFreightorderTripSerializers

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import FreightView, FreightTruckAssignView, FreightTruckConfirmView, GetAllFreightView,\
-                   GetConfirmedFreightView, GetAssignedFreightView
+                   GetConfirmedFreightView, GetAssignedFreightView, CreateCarrierInvoice, GetReceiptInformation
 
 
 urlpatterns = [
@@ -11,4 +11,6 @@ urlpatterns = [
    path('getFreightList/', GetAllFreightView.as_view()),  # to get list of freight orders
    path('getConfirmedFreightList/', GetConfirmedFreightView.as_view()),  # to get list of confirmed freight orders
    path('getAssignedFreightList/', GetAssignedFreightView.as_view()),  # to get list of assigned freight orders
+   path('updateFreightOrderDetails/<int:pk>/', CreateCarrierInvoice.as_view()),  # to create carrier invoice
+   path('getReceiptDetails/<int:pk>/', GetReceiptInformation.as_view()),  # to create carrier invoice
 ]

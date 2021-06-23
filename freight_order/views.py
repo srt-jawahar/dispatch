@@ -1,10 +1,8 @@
 from django.db.models import Max, Min, Q
-from django.http import JsonResponse
-from django.shortcuts import render
 from rest_framework import mixins, status, permissions
 from rest_framework import generics
-from .serializers import FreightOrdersSerializer, FreightTruckAssignSerializer, FreightTruckConfirmSerializer, \
-    FreightOrdersGetSerializer
+from .serializers import FreightOrdersSerializer, FreightTruckConfirmSerializer, \
+    FreightOrdersGetSerializer, CreateCarrierInvoiceSerializer
 from .models import FreightOrders, FreightTruckAssignments
 from rest_framework.response import Response
 from truckmanagement.models import TruckAvailability, TruckDetails
@@ -274,3 +272,16 @@ class GetAssignedFreightView(generics.ListAPIView):
 
     def get_queryset(self):
         return FreightOrders.objects.filter(freight_status=FreightOrders.ASSIGNED)
+
+
+class CreateCarrierInvoice(generics.UpdateAPIView):
+    queryset = FreightOrders.objects.all()
+    serializer_class = CreateCarrierInvoiceSerializer
+
+
+class GetReceiptInformation(generics.ListAPIView):
+    serializer_class = FreightOrdersGetSerializer
+
+    def get_queryset(self):
+        CLOSED = 'Closed'
+        return FreightOrders.objects.filter(freight_status=CLOSED)

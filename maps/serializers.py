@@ -12,3 +12,9 @@ class UpdateFreightOrderStatusSerializers(serializers.ModelSerializer):
     class Meta:
         model = FreightOrders
         fields = ['remarks', 'truck_number', 'truck_driver_details', 'truck_current_pos', 'truck_status']
+
+
+class EndFreightorderTripSerializers(serializers.ModelSerializer):
+    class Meta:
+        model = FreightOrders
+        fields = ['freight_status']
