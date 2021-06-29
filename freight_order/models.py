@@ -1,5 +1,15 @@
 from django.db import models
 from masterdata.models import DateAuditModel, UserAuditModel
+from django.utils import timezone
+
+import os
+
+
+def upload_location(instance, filename):
+    now = timezone.now()
+    base, extension = os.path.splitext(filename.lower())
+    milliseconds = now.microsecond // 1000
+    return f"files/{instance.pk}/{now:%Y%m%d%H%M%S}{milliseconds}{extension}"
 
 
 class FreightOrders(DateAuditModel, UserAuditModel):
@@ -68,6 +78,7 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     total_amount = models.CharField(max_length=255, default='', null=False, blank=True)
     advance_amount = models.FloatField(default=0, null=False, blank=True)
     approval_status = models.CharField(max_length=255, choices=approval_status, default='', null=False, blank=True)
+    document_details = models.FileField(upload_to=upload_location, null=True, blank=True)
 
     class Meta:
         db_table = 'freight_orders'

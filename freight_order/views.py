@@ -1,11 +1,19 @@
 from django.db.models import Max, Min, Q
 from rest_framework import mixins, status, permissions
-from rest_framework import generics
+from rest_framework import generics, viewsets, parsers, views
 from .serializers import FreightOrdersSerializer, FreightTruckConfirmSerializer, \
-    FreightOrdersGetSerializer, CreateCarrierInvoiceSerializer
+    FreightOrdersGetSerializer, CreateCarrierInvoiceSerializer, CarrierInvoiceUploadSerializer
 from .models import FreightOrders, FreightTruckAssignments
 from rest_framework.response import Response
 from truckmanagement.models import TruckAvailability, TruckDetails
+from drf_yasg.utils import swagger_auto_schema
+
+import zipfile
+import os
+import io
+import tempfile
+
+mf = io.BytesIO()
 
 
 # Starting of freight order creation
@@ -285,3 +293,35 @@ class GetReceiptInformation(generics.ListAPIView):
     def get_queryset(self):
         CLOSED = 'Closed'
         return FreightOrders.objects.filter(freight_status=CLOSED)
+
+
+class UploadCarrierInvoiceView(viewsets.ViewSet):
+    parser_classes = (parsers.FormParser, parsers.MultiPartParser)
+
+    # permission_classes = (permissions.IsAuthenticated,)
+
+    @swagger_auto_schema(
+        request_body=CarrierInvoiceUploadSerializer
+    )
+    def create(self, request):
+        serializer = CarrierInvoiceUploadSerializer(data=request.data)
+        freight_order_number = request.data.get('freight_order_number')
+
+        if 'document_details' not in request.FILES or not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        else:
+            v_files = request.FILES.getlist('document_details')
+            handle_uploaded_file(v_files, f'{freight_order_number}.zip', 'uploads')
+            return Response(status=status.HTTP_201_CREATED)
+
+
+def handle_uploaded_file(f, filename, folderName):
+    with zipfile.ZipFile(filename, 'w', compression=zipfile.ZIP_DEFLATED) as zipF:
+        for _file in f:
+            zipF.write(_file)
+
+# class DownloadCarrierInvoice(views.APIView):
+#     # permission_classes = [permissions.IsAuthenticated]
+#     def post(self, request):
+#         freight_order_number = request.data['freight_order_number']
+#

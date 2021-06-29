@@ -45,6 +45,8 @@ class CreateCarrierInvoiceSerializer(serializers.ModelSerializer):
         fields = ['dist_uom', 'submission_date', 'total_amount', 'advance_amount', 'approval_status']
 
 
-
-
+class CarrierInvoiceUploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FreightOrders
+        fields = ['document_details']
 
