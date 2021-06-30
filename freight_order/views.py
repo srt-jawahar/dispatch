@@ -9,9 +9,7 @@ from truckmanagement.models import TruckAvailability, TruckDetails
 from drf_yasg.utils import swagger_auto_schema
 
 import zipfile
-import os
 import io
-import tempfile
 
 mf = io.BytesIO()
 

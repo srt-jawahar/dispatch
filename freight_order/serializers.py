@@ -42,7 +42,7 @@ class FreightOrdersGetSerializer(serializers.ModelSerializer):
 class CreateCarrierInvoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = FreightOrders
-        fields = ['dist_uom', 'submission_date', 'total_amount', 'advance_amount', 'approval_status']
+        fields = ['dist_uom', 'submission_date', 'total_amount', 'advance_amount', 'approval_status', 'total_distance', 'remarks']
 
 
 class CarrierInvoiceUploadSerializer(serializers.ModelSerializer):

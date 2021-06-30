@@ -74,7 +74,7 @@ class FreightOrders(DateAuditModel, UserAuditModel):
     truck_status = models.CharField(choices=truck_status, max_length=30, default='')
     total_distance = models.FloatField(default=0, null=False, blank=True)
     dist_uom = models.CharField(max_length=255, default='', null=False, blank=True)
-    submission_date = models.DateTimeField(null=True, auto_now=False, auto_now_add=False)
+    submission_date = models.DateTimeField(null=True, auto_now=False, auto_now_add=False, blank=True)
     total_amount = models.CharField(max_length=255, default='', null=False, blank=True)
     advance_amount = models.FloatField(default=0, null=False, blank=True)
     approval_status = models.CharField(max_length=255, choices=approval_status, default='', null=False, blank=True)
