@@ -309,16 +309,29 @@ class UploadCarrierInvoiceView(viewsets.ViewSet):
             return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             v_files = request.FILES.getlist('document_details')
-            handle_uploaded_file(v_files, f'{freight_order_number}.zip', 'uploads')
+            #handle_uploaded_file(v_files, f'{freight_order_number}.zip', 'uploads')
+            handle_uploaded_file(v_files, freight_order_number, 'uploads')
             return Response(status=status.HTTP_201_CREATED)
 
 
-def handle_uploaded_file(f, filename, folderName):
-    with zipfile.ZipFile(filename, 'w', compression=zipfile.ZIP_DEFLATED) as zipF:
+def handle_uploaded_file(f, freight_order_number, folderName):
+    '''with zipfile.ZipFile(folderName + "\\" + filename, 'w', compression=zipfile.ZIP_DEFLATED) as zipF:
         for _file in f:
-            zipF.write(_file)
+            zipF.write('F:\MG\My Files\p2p_vengat.txt')
+    zipF.close()'''
+    count = 0
+    for filename in f:
+     file_name = filename.name
+     ext_index = file_name.rfind('.')
+     filename_lenght = len(file_name)
+     filename_extension = file_name[ext_index:filename_lenght]
+     for chunk in filename.chunks():
+        count = count + 1
+        final_file_name = freight_order_number + "-" + str(count) + filename_extension
+        with open(folderName + "\\" + final_file_name, 'wb+') as destination:
+            destination.write(chunk)
 
-# class DownloadCarrierInvoice(views.APIView):
+            # class DownloadCarrierInvoice(views.APIView):
 #     # permission_classes = [permissions.IsAuthenticated]
 #     def post(self, request):
 #         freight_order_number = request.data['freight_order_number']
