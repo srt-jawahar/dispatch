@@ -4,7 +4,7 @@ from django.conf.urls.static import static
 
 from .views import FreightView, FreightTruckAssignView, FreightTruckConfirmView, GetAllFreightView, \
     GetConfirmedFreightView, GetAssignedFreightView, CreateCarrierInvoice, GetReceiptInformation, \
-    UploadCarrierInvoiceView
+    UploadCarrierInvoiceView, DownloadCarrierInvoiceView, DownloadInvoiceZipView
 from rest_framework import routers
 
 router = routers.DefaultRouter()
@@ -21,6 +21,7 @@ urlpatterns = [
     path('updateFreightOrderDetails/<int:pk>/', CreateCarrierInvoice.as_view()),  # to create carrier invoice
     path('getReceiptOrCarrierInvoiceDetails/', GetReceiptInformation.as_view()),  # to get carrier invoice
     path('uploadCarrierInvoice/', include(router.urls)),  # to get carrier invoice
+    path(r'downloadCarrierInvoice/', DownloadInvoiceZipView.as_view()),  # to get carrier invoice
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
