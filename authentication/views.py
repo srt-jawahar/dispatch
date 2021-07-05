@@ -48,7 +48,8 @@ class RegistrationView(generics.GenericAPIView):
         data = {'email_body': email_body, 'email_subject': 'Verify your email address', 'to_email': user_obj.email}
         try:
             Utils.send_email(data)
-        except:
+        except Exception as e:
+            print(e)
             return Response({'error': 'Email not sent'}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response(user_data, status=status.HTTP_201_CREATED)

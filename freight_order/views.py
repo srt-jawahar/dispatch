@@ -1,9 +1,7 @@
-import shutil
-
 from django.db.models import Max, Min, Q
 from django.http import HttpResponse, FileResponse
 from rest_framework import mixins, status, permissions
-from rest_framework import generics, viewsets, parsers, views
+from rest_framework import generics, viewsets, parsers
 
 from core.settings import UPLOAD_ROOT
 from .serializers import FreightOrdersSerializer, FreightTruckConfirmSerializer, \
@@ -12,6 +10,7 @@ from .models import FreightOrders, FreightTruckAssignments
 from rest_framework.response import Response
 from truckmanagement.models import TruckAvailability, TruckDetails
 from drf_yasg.utils import swagger_auto_schema
+from authentication.utils import Utils
 
 import zipfile
 import os
@@ -270,6 +269,12 @@ class FreightTruckAssignView(generics.GenericAPIView, mixins.ListModelMixin, mix
                     order.remarks = freight_data.get('remarks')
                 order.updated_by = user_name
                 order.save()
+                abs_url = f'{os.environ.get("FRONTEND_URL")}/driverapp?freight_order_no={order.freight_order_no}&id={order.id}'
+                email_body = 'Hi ' + user_name + '\nClick the below link to take it to maps \n' + f':-{abs_url}'
+
+                data = {'email_body': email_body, 'email_subject': 'Map link',
+                        'to_email': request.user.email}
+                Utils.send_email(data)
 
                 return Response(status=status.HTTP_200_OK)
 
@@ -302,7 +307,7 @@ class GetReceiptInformation(generics.ListAPIView):
 class UploadCarrierInvoiceView(viewsets.ViewSet):
     parser_classes = (parsers.FormParser, parsers.MultiPartParser)
 
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     @swagger_auto_schema(
         request_body=CarrierInvoiceUploadSerializer
@@ -339,28 +344,27 @@ def handle_uploaded_file(f, freight_order_number, folderName):
 
 
 class DownloadCarrierInvoiceView(generics.GenericAPIView):
-    # permission_classes = (permissions.IsAuthenticated,)
+    permission_classes = (permissions.IsAuthenticated,)
 
     def get(self, request):
         freight_order_number = request.GET.get('freight_order_no')
-        serializer = CarrierInvoiceUploadSerializer(data=request.data)
 
         zipped_files = []
-        #zipF = zipfile.ZipFile("uploads\\" + freight_order_number + ".zip", 'w', zipfile.ZIP_DEFLATED)
+        # zipF = zipfile.ZipFile("uploads\\" + freight_order_number + ".zip", 'w', zipfile.ZIP_DEFLATED)
 
         file_checker = False
         for subdir, dirs, files in os.walk(UPLOAD_ROOT):
             for file in files:
 
-             '''if not os.path.isfile("uploads\\" + freight_order_number + ".zip"):
+                '''if not os.path.isfile("uploads\\" + freight_order_number + ".zip"):
               zipF = zipfile.ZipFile("uploads\\" + freight_order_number + ".zip", 'w', zipfile.ZIP_DEFLATED)'''
 
-             if file.startswith(freight_order_number):
-                     file2 = open("uploads\\" + file, 'rb')  # Read the file in binary mode, this file must exist
-                     file_checker = True
-                     zipped_files.append(file2)
-                     #zipF.write("uploads\\" + file)
-        #zipF.close()
+                if file.startswith(freight_order_number):
+                    file2 = open("uploads\\" + file, 'rb')  # Read the file in binary mode, this file must exist
+                    file_checker = True
+                    zipped_files.append(file2)
+                    # zipF.write("uploads\\" + file)
+        # zipF.close()
         if file_checker is False:
             return Response({"message": "No attachments to this freight order"},
                             status=status.HTTP_400_BAD_REQUEST)
@@ -381,7 +385,7 @@ class DownloadInvoiceZipView(generics.GenericAPIView):
         for subdir, dirs, files in os.walk(UPLOAD_ROOT):
             for file in files:
                 if not os.path.isfile("uploads\\" + freight_order_number + ".zip"):
-                 zipF = zipfile.ZipFile("uploads\\" + freight_order_number + ".zip", 'w', zipfile.ZIP_DEFLATED)
+                    zipF = zipfile.ZipFile("uploads\\" + freight_order_number + ".zip", 'w', zipfile.ZIP_DEFLATED)
 
                 if file.startswith(freight_order_number):
                     zipF.write("uploads\\" + file)
