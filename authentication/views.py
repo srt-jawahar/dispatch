@@ -41,9 +41,10 @@ class RegistrationView(generics.GenericAPIView):
         user_data = serializer.data
         user_obj = User.objects.get(email=user_data.get('email'))
         token = RefreshToken.for_user(user_obj).access_token
-        current_site = get_current_site(request).domain
-        relative_link = reverse('email-verify')
-        abs_urls = 'http://' + current_site + relative_link + '?token=' + str(token)
+        # current_site = get_current_site(request).domain
+        # relative_link = reverse('email-verify')
+        frontend_uri = os.environ.get('EMAIL_VERIFICATION_URL')
+        abs_urls = frontend_uri + '?token=' + str(token)
         email_body = 'Hi ' + user_obj.username + '\nClick the below link to verify your email address. \n' + abs_urls
         data = {'email_body': email_body, 'email_subject': 'Verify your email address', 'to_email': user_obj.email}
         try:
